@@ -28,4 +28,4 @@ what to do:
 - in case of a problem just drop me an email:-)
 
 reference:
-    #1645
+    https://github.com/termux/termux-packages/issues/1645
