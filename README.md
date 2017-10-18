@@ -30,4 +30,4 @@ what to do:
 reference:
 
 
-https://github.com/termux/termux-packages/issues/1645
+    https://github.com/termux/termux-packages/issues/1645#issuecomment-337564650
