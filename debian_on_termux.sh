@@ -206,7 +206,7 @@ LD_PRELOAD= $PREFIX/bin/proot \
     -w /root \
     -0 \
     --link2symlink \
-/usr/bin/env -i HOME=/root TERM=xterm PATH=/usr/sbin:/usr/bin:/sbin:/bin /debootstrap/debootstrap --second-stage  
+    /usr/bin/env -i HOME=/root TERM=xterm PATH=/usr/sbin:/usr/bin:/sbin:/bin /debootstrap/debootstrap --second-stage  
 } # end DO_SECOND_STAGE
 
 #
@@ -235,7 +235,7 @@ LD_PRELOAD= $PREFIX/bin/proot \
     -w /root \
     -0 \
     --link2symlink \
-/usr/bin/env -i HOME=/root TERM=xterm /bin/bash --login
+    /usr/bin/env -i HOME=/root TERM=xterm /bin/bash --login
 EOF
 chmod 755 $HOME/bin/enter_deb
 
@@ -293,7 +293,7 @@ LD_PRELOAD= $PREFIX/bin/proot \
     -w /root \
     -0 \
     --link2symlink \
-/usr/bin/env -i HOME=/root TERM=xterm PATH=/usr/sbin:/usr/bin:/sbin:/bin /tmp/dot_tmp.sh
+    /usr/bin/env -i HOME=/root TERM=xterm PATH=/usr/sbin:/usr/bin:/sbin:/bin /tmp/dot_tmp.sh
 
 } # end DO_THIRD_STAGE
 
