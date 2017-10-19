@@ -32,5 +32,4 @@ how to use it
 
 reference
 ---------
-
     [How to install Debian 9.2 chroot termux? #1645](https://github.com/termux/termux-packages/issues/1645#issuecomment-337564650)
