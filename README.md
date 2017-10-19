@@ -10,9 +10,9 @@ how to use it
 -------------
 
 - install [Termux](https://termux.com/)
-- download `debian_on_termux.sh` from [debian-on-termux](https://github.com/sp4rkie/debian-on-termux) to your termux home directory `/data/data/com.termux/files/home`
+- download `debian_on_termux.sh` from [debian-on-termux](https://github.com/sp4rkie/debian-on-termux) in your termux home directory `$HOME`
 ```
-    cd
+    cd /data/data/com.termux/files/home
     wget https://raw.githubusercontent.com/sp4rkie/debian-on-termux/master/debian_on_termux.sh
 ```
 - set perms and execute the script
