@@ -1,10 +1,13 @@
-# debian-on-termux
+debian-on-termux
+================
 
-what is it:
+what is it
+----------
 
 - a shell script to install Debian 9 (stretch) via debootstrap in a termux-app environment
 
-how to use it:
+how to use it
+-------------
 
 - install termux-app 
 - download 'debian_on_termux.sh' from this repository to termux home directory '/data/data/com.termux/files/home'
@@ -27,6 +30,7 @@ how to use it:
 ```
 - in case of a problem just drop me an email:-)
 
-reference:
+reference
+---------
 
     [How to install Debian 9.2 chroot termux? #1645](https://github.com/termux/termux-packages/issues/1645#issuecomment-337564650)
