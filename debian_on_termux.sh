@@ -1,11 +1,17 @@
 #!/data/data/com.termux/files/usr/bin/bash
 
+#
+# some configuration. adapt this to your needs
+#
 #set -x  
-ARCHITECTURE=armhf
-VERSION=stretch
-DO_FIRST_STAGE=:  #false   # required
-DO_SECOND_STAGE=: #false   # required
-DO_THIRD_STAGE=:  #false   # optional (enable local policies)
+set -e
+ARCHITECTURE=armhf         # possible architectures include: armel, armhf, arm64
+VERSION=stretch            # debian versions include: stable (stretch), testing, unstable
+DO_FIRST_STAGE=: # false   # required (unpack phase/ executes outside guest invironment)
+DO_SECOND_STAGE=: # false   # required (complete the install/ executes inside guest invironment)
+DO_THIRD_STAGE=: # false   # optional (enable local policies/ executes inside guest invironment)
+ROOTFS_TOP=deboot_debian9  # top install directory
+ZONEINFO=Europe/Berlin     # set your desired time zone
 
 filter() {
     egrep -v '^$|^WARNING: apt does'
@@ -17,6 +23,11 @@ cd
 # first stage - do the initial unpack phase of bootstrapping only
 #
 $DO_FIRST_STAGE && {
+[ -e $HOME/$ROOTFS_TOP ] && {
+    echo the target install directory already exists, to continue please remove it by
+    echo rm -rf $HOME/$ROOTFS_TOP
+    exit
+}
 apt update 2>&1 | filter
 DEBIAN_FRONTEND=noninteractive apt -y install perl proot 2>&1 | filter                              
 wget http://http.debian.net/debian/pool/main/d/debootstrap/debootstrap_1.0.91.tar.gz -O - | tar xfz -
@@ -52,7 +63,7 @@ patch << 'EOF'
 EOF
 #
 # you can watch the debootstrap progress via
-# tail -F $HOME/deboot_debian9/debootstrap/debootstrap.log
+# tail -F $HOME/$ROOTFS_TOP/debootstrap/debootstrap.log
 #
 export DEBOOTSTRAP_DIR=`pwd`
 LD_PRELOAD= $PREFIX/bin/proot \
@@ -73,7 +84,8 @@ LD_PRELOAD= $PREFIX/bin/proot \
     -r $PREFIX/.. \
     -0 \
     --link2symlink \
-    ./debootstrap --foreign --arch=$ARCHITECTURE $VERSION $HOME/deboot_debian9 http://deb.debian.org/debian
+    ./debootstrap --foreign --arch=$ARCHITECTURE $VERSION $HOME/$ROOTFS_TOP http://deb.debian.org/debian \
+                                                                || : # proot returns invalid exit status
 } # end DO_FIRST_STAGE
 
 #
@@ -86,7 +98,7 @@ $DO_SECOND_STAGE && {
 # and the like. Since these do not work well in this 
 # environment (at least at the time of writing)
 #
-cat << 'EOF' > $HOME/deboot_debian9/etc/passwd
+cat << 'EOF' > $HOME/$ROOTFS_TOP/etc/passwd
 root:x:0:0:root:/root:/bin/bash
 daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
 bin:x:2:2:bin:/bin:/usr/sbin/nologin
@@ -113,9 +125,9 @@ _apt:x:104:65534::/nonexistent:/bin/false
 messagebus:x:105:110::/var/run/dbus:/bin/false
 sshd:x:106:65534::/run/sshd:/usr/sbin/nologin
 EOF
-chmod 644 $HOME/deboot_debian9/etc/passwd
+chmod 644 $HOME/$ROOTFS_TOP/etc/passwd
 
-cat << 'EOF' > $HOME/deboot_debian9/etc/group
+cat << 'EOF' > $HOME/$ROOTFS_TOP/etc/group
 root:x:0:
 daemon:x:1:
 bin:x:2:
@@ -166,9 +178,9 @@ netdev:x:108:
 ssh:x:109:
 messagebus:x:110:
 EOF
-chmod 644 $HOME/deboot_debian9/etc/group
+chmod 644 $HOME/$ROOTFS_TOP/etc/group
 
-cat << 'EOF' > $HOME/deboot_debian9/etc/shadow
+cat << 'EOF' > $HOME/$ROOTFS_TOP/etc/shadow
 root:*:17448:0:99999:7:::
 daemon:*:17448:0:99999:7:::
 bin:*:17448:0:99999:7:::
@@ -195,18 +207,19 @@ _apt:*:17448:0:99999:7:::
 messagebus:*:17448:0:99999:7:::
 sshd:*:17448:0:99999:7:::
 EOF
-chmod 640 $HOME/deboot_debian9/etc/shadow
+chmod 640 $HOME/$ROOTFS_TOP/etc/shadow
 
 # since there are issues with proot and /proc mounts (https://github.com/termux/termux-packages/issues/1679)
 # we currently cease from mounting /proc.
 # the guest system now is setup to complete the installation - just dive in
 LD_PRELOAD= $PREFIX/bin/proot \
     -b /dev:/dev \
-    -r $HOME/deboot_debian9 \
+    -r $HOME/$ROOTFS_TOP \
     -w /root \
     -0 \
     --link2symlink \
-    /usr/bin/env -i HOME=/root TERM=xterm PATH=/usr/sbin:/usr/bin:/sbin:/bin /debootstrap/debootstrap --second-stage  
+    /usr/bin/env -i HOME=/root TERM=xterm PATH=/usr/sbin:/usr/bin:/sbin:/bin /debootstrap/debootstrap --second-stage \
+                                                                                || : # proot returns invalid exit status
 } # end DO_SECOND_STAGE
 
 #
@@ -216,22 +229,24 @@ LD_PRELOAD= $PREFIX/bin/proot \
 $DO_THIRD_STAGE && {
 
 #
-# there is no resolv.conf as per default
+# if there exists no resolv.conf create one
 #
-cat << 'EOF' > $HOME/deboot_debian9/etc/resolv.conf
+[ -e $HOME/$ROOTFS_TOP/etc/resolv.conf ] || {
+cat << 'EOF' > $HOME/$ROOTFS_TOP/etc/resolv.conf
 nameserver 208.67.222.222
 nameserver 208.67.220.220
 EOF
-chmod 640 $HOME/deboot_debian9/etc/resolv.conf
+chmod 644 $HOME/$ROOTFS_TOP/etc/resolv.conf
+}
 
 #
 # to enter the debian guest system execute 'enter_deb' on the termux host system
 #
 mkdir -p $HOME/bin
-cat << 'EOF' > $HOME/bin/enter_deb
+cat << EOF > $HOME/bin/enter_deb
 LD_PRELOAD= $PREFIX/bin/proot \
     -b /dev:/dev \
-    -r $HOME/deboot_debian9 \
+    -r $HOME/$ROOTFS_TOP \
     -w /root \
     -0 \
     --link2symlink \
@@ -239,7 +254,7 @@ LD_PRELOAD= $PREFIX/bin/proot \
 EOF
 chmod 755 $HOME/bin/enter_deb
 
-cat << 'EOF' > $HOME/deboot_debian9/root/.profile
+cat << 'EOF' > $HOME/$ROOTFS_TOP/root/.profile
 # ~/.profile: executed by Bourne-compatible login shells.
 
 if [ "$BASH" ]; then
@@ -249,7 +264,7 @@ if [ "$BASH" ]; then
 fi
 EOF
 
-cat << 'EOF' > $HOME/deboot_debian9/tmp/dot_tmp.sh
+cat << EOF > $HOME/$ROOTFS_TOP/tmp/dot_tmp.sh
 #!/bin/sh
 
 filter() {
@@ -271,7 +286,7 @@ debconf debconf/priority                       select low
 locales locales/locales_to_be_generated        select en_US.UTF-8 UTF-8
 locales locales/default_environment_locale     select en_US.UTF-8
 !
-ln -nfs /usr/share/zoneinfo/Europe/Berlin /etc/localtime
+ln -nfs /usr/share/zoneinfo/$ZONEINFO /etc/localtime
 dpkg-reconfigure -fnoninteractive tzdata
 dpkg-reconfigure -fnoninteractive debconf
 
@@ -285,20 +300,20 @@ update-locale LANG=en_US.UTF-8 LC_COLLATE=C
 #DEBIAN_FRONTEND=noninteractive apt -y install rsync less gawk ssh 2>&1 | filter  
 apt clean 2>&1 | filter
 EOF
-chmod 755 $HOME/deboot_debian9/tmp/dot_tmp.sh
+chmod 755 $HOME/$ROOTFS_TOP/tmp/dot_tmp.sh
 
 LD_PRELOAD= $PREFIX/bin/proot \
     -b /dev:/dev \
-    -r $HOME/deboot_debian9 \
+    -r $HOME/$ROOTFS_TOP \
     -w /root \
     -0 \
     --link2symlink \
-    /usr/bin/env -i HOME=/root TERM=xterm PATH=/usr/sbin:/usr/bin:/sbin:/bin /tmp/dot_tmp.sh
-
-} # end DO_THIRD_STAGE
-
+    /usr/bin/env -i HOME=/root TERM=xterm PATH=/usr/sbin:/usr/bin:/sbin:/bin /tmp/dot_tmp.sh \
+                                                      || : # proot returns invalid exit status
 echo 
 echo installation successfully completed
-echo to enter the guest system type '$HOME/bin/enter_deb'
+echo to enter the guest system type:
+echo '$HOME/bin/enter_deb'
 echo
 
+} # end DO_THIRD_STAGE
