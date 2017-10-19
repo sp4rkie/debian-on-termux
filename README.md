@@ -4,12 +4,12 @@ debian-on-termux
 what is it
 ----------
 
-- a shell script to install Debian 9 (stretch) via debootstrap in a [Termux](https://termux.com/) environment
+- a shell script to install [Debian 9 (stretch)](https://www.debian.org/releases/stretch/) via [debootstrap](https://wiki.debian.org/Debootstrap) in a [Termux](https://wiki.termux.com/wiki/Main_Page) environment
 
 how to use it
 -------------
 
-- install termux-app 
+- install [Termux](https://termux.com/)
 - download `debian_on_termux.sh` from this repository to termux home directory `/data/data/com.termux/files/home`
 ```
     cd
@@ -24,7 +24,7 @@ how to use it
 ```
     tail -F $HOME/deboot_debian9/debootstrap/debootstrap.log
 ```
-- if all went well a script is created in $HOME/bin. To enter the debian guest system just type
+- if all went well a script is created in `$HOME/bin`. To enter the debian guest system just type
 ```
     $HOME/bin/enter_deb
 ```
