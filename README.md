@@ -5,6 +5,7 @@ what is it
 ----------
 
 - a shell script to install [Debian 9 (stretch)](https://www.debian.org/releases/stretch/) via [debootstrap](https://wiki.debian.org/Debootstrap) in a [Termux](https://wiki.termux.com/wiki/Main_Page) environment
+- Debian testing, unstable is also supported
 
 how to use it
 -------------
@@ -15,8 +16,7 @@ how to use it
         cd /data/data/com.termux/files/home
         wget https://raw.githubusercontent.com/sp4rkie/debian-on-termux/master/debian_on_termux.sh
 
-- check the configuration lines at the top of the script for a valid architecture and other preferences
-
+- check the configuration lines near the top of the script for your target architecture, debian version and other preferences
 - set file permissions and execute the script
 
         chmod 755 debian_on_termux.sh
@@ -24,13 +24,18 @@ how to use it
 
 - watch the installation process by
 
-        tail -F $HOME/deboot_debian9/debootstrap/debootstrap.log
+        tail -F $HOME/deboot_debian/debootstrap/debootstrap.log
 
 - if all went well a script is created in `$HOME/bin`. To enter the debian guest system just type
 
         $HOME/bin/enter_deb
 
-- in case of a problem just drop me an email:-)
+- for suggestions or in the unlikely event of a problem just raise an issue [here](https://github.com/sp4rkie/debian-on-termux/issues/new):-)
+
+hardware
+--------
+
+- developed and tested on Android version: 6.0.1/ Device manufacturer: LGE/ Device model: LG-K100
 
 reference
 ---------
