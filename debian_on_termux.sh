@@ -5,12 +5,13 @@
 #
 #set -x  
 set -e
-ARCHITECTURE=armhf         # possible architectures include: armel, armhf, arm64
-VERSION=stretch            # debian versions include: stable (stretch), testing, unstable
 DO_FIRST_STAGE=: # false   # required (unpack phase/ executes outside guest invironment)
-DO_SECOND_STAGE=: # false   # required (complete the install/ executes inside guest invironment)
+DO_SECOND_STAGE=: # false  # required (complete the install/ executes inside guest invironment)
 DO_THIRD_STAGE=: # false   # optional (enable local policies/ executes inside guest invironment)
-ROOTFS_TOP=deboot_debian9  # top install directory
+
+ARCHITECTURE=armhf         # possible architectures include: armel, armhf, arm64
+VERSION=stretch            # possible debian versions include: stretch, stable, testing, unstable
+ROOTFS_TOP=deboot_debian   # name of the top install directory
 ZONEINFO=Europe/Berlin     # set your desired time zone
 
 filter() {
@@ -40,7 +41,7 @@ patch << 'EOF'
 +++ debootstrap-1.0.91/functions	2017-10-16 18:23:46.707005005 +0200
 @@ -1083,6 +1083,10 @@
  }
- 
+
  setup_proc () {
 +
 +echo setup_proc
@@ -67,11 +68,11 @@ EOF
 #
 export DEBOOTSTRAP_DIR=`pwd`
 LD_PRELOAD= $PREFIX/bin/proot \
-    -b /system:/system \
-    -b /vendor:/vendor \
-    -b /data:/data \
-    -b /property_contexts:/property_contexts \
-    -b /storage:/storage \
+    -b /system \
+    -b /vendor \
+    -b /data \
+    -b /property_contexts \
+    -b /storage \
     -b $PREFIX:/usr \
     -b $PREFIX/bin:/bin \
     -b $PREFIX/etc:/etc \
@@ -79,8 +80,8 @@ LD_PRELOAD= $PREFIX/bin/proot \
     -b $PREFIX/share:/share \
     -b $PREFIX/tmp:/tmp \
     -b $PREFIX/var:/var \
-    -b /dev:/dev \
-    -b /proc:/proc \
+    -b /dev \
+    -b /proc \
     -r $PREFIX/.. \
     -0 \
     --link2symlink \
@@ -213,7 +214,7 @@ chmod 640 $HOME/$ROOTFS_TOP/etc/shadow
 # we currently cease from mounting /proc.
 # the guest system now is setup to complete the installation - just dive in
 LD_PRELOAD= $PREFIX/bin/proot \
-    -b /dev:/dev \
+    -b /dev \
     -r $HOME/$ROOTFS_TOP \
     -w /root \
     -0 \
@@ -229,7 +230,7 @@ LD_PRELOAD= $PREFIX/bin/proot \
 $DO_THIRD_STAGE && {
 
 #
-# if there exists no resolv.conf create one
+# take over an existing 'resolv.conf' from the host system (if there is one)
 #
 [ -e $HOME/$ROOTFS_TOP/etc/resolv.conf ] || {
 cat << 'EOF' > $HOME/$ROOTFS_TOP/etc/resolv.conf
@@ -240,12 +241,12 @@ chmod 644 $HOME/$ROOTFS_TOP/etc/resolv.conf
 }
 
 #
-# to enter the debian guest system execute 'enter_deb' on the termux host system
+# to enter the debian guest system execute '$HOME/bin/enter_deb' on the termux host system
 #
 mkdir -p $HOME/bin
 cat << EOF > $HOME/bin/enter_deb
 LD_PRELOAD= $PREFIX/bin/proot \
-    -b /dev:/dev \
+    -b /dev \
     -r $HOME/$ROOTFS_TOP \
     -w /root \
     -0 \
@@ -303,7 +304,7 @@ EOF
 chmod 755 $HOME/$ROOTFS_TOP/tmp/dot_tmp.sh
 
 LD_PRELOAD= $PREFIX/bin/proot \
-    -b /dev:/dev \
+    -b /dev \
     -r $HOME/$ROOTFS_TOP \
     -w /root \
     -0 \
