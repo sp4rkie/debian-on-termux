@@ -9,8 +9,8 @@ DO_FIRST_STAGE=: # false   # required (unpack phase/ executes outside guest invi
 DO_SECOND_STAGE=: # false  # required (complete the install/ executes inside guest invironment)
 DO_THIRD_STAGE=: # false   # optional (enable local policies/ executes inside guest invironment)
 
-ARCHITECTURE=armhf         # possible architectures include: armel, armhf, arm64
-VERSION=stretch            # possible debian versions include: stretch, stable, testing, unstable
+ARCHITECTURE=armhf         # supported architectures include: armel, armhf, arm64
+VERSION=stretch            # supported debian versions include: stretch, stable, testing, unstable
 ROOTFS_TOP=deboot_debian   # name of the top install directory
 ZONEINFO=Europe/Berlin     # set your desired time zone
 
