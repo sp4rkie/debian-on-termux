@@ -27,7 +27,7 @@ how to use it
 
         tail -F $HOME/deboot_debian/debootstrap/debootstrap.log
 
-- if all went well a script is created in `$HOME/bin`. To enter the debian guest system just type
+- if all went well (takes about 30min on my hardware, see below) a script is created. To enter the debian guest system just type
 
         $HOME/bin/enter_deb
 
