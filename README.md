@@ -31,6 +31,13 @@ how to use it
 
         $HOME/bin/enter_deb
 
+        Usage: enter_deb [option]
+        enter_deb: enter the installed debian guest system
+
+          -0 - mimic root (default)
+          -n - prefer regular termux uid (termux-uid)
+          -p - mount proc (requires a patched proot package)
+
 - for suggestions or in the unlikely event of a problem just raise an issue [here](https://github.com/sp4rkie/debian-on-termux/issues/new):-)
 
 hardware

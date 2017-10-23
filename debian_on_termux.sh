@@ -18,6 +18,8 @@ filter() {
     egrep -v '^$|^WARNING: apt does'
 }
 
+USER_ID=`id -u`
+USER_NAME=`id -un`
 cd
 #
 # ===============================================================
@@ -99,7 +101,7 @@ $DO_SECOND_STAGE && {
 # and the like. Since these do not work well in this 
 # environment (at least at the time of writing)
 #
-cat << 'EOF' > $HOME/$ROOTFS_TOP/etc/passwd
+cat << EOF > $HOME/$ROOTFS_TOP/etc/passwd
 root:x:0:0:root:/root:/bin/bash
 daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
 bin:x:2:2:bin:/bin:/usr/sbin/nologin
@@ -125,10 +127,11 @@ systemd-bus-proxy:x:103:105:systemd Bus Proxy,,,:/run/systemd:/bin/false
 _apt:x:104:65534::/nonexistent:/bin/false
 messagebus:x:105:110::/var/run/dbus:/bin/false
 sshd:x:106:65534::/run/sshd:/usr/sbin/nologin
+$USER_NAME:x:$USER_ID:$USER_ID::/home/$USER_NAME:/bin/bash
 EOF
 chmod 644 $HOME/$ROOTFS_TOP/etc/passwd
 
-cat << 'EOF' > $HOME/$ROOTFS_TOP/etc/group
+cat << EOF > $HOME/$ROOTFS_TOP/etc/group
 root:x:0:
 daemon:x:1:
 bin:x:2:
@@ -178,10 +181,11 @@ crontab:x:107:
 netdev:x:108:
 ssh:x:109:
 messagebus:x:110:
+$USER_NAME:x:$USER_ID:
 EOF
 chmod 644 $HOME/$ROOTFS_TOP/etc/group
 
-cat << 'EOF' > $HOME/$ROOTFS_TOP/etc/shadow
+cat << EOF > $HOME/$ROOTFS_TOP/etc/shadow
 root:*:17448:0:99999:7:::
 daemon:*:17448:0:99999:7:::
 bin:*:17448:0:99999:7:::
@@ -207,8 +211,15 @@ systemd-bus-proxy:*:17448:0:99999:7:::
 _apt:*:17448:0:99999:7:::
 messagebus:*:17448:0:99999:7:::
 sshd:*:17448:0:99999:7:::
+$USER_NAME:*:15277:0:99999:7:::
 EOF
 chmod 640 $HOME/$ROOTFS_TOP/etc/shadow
+
+#
+# add the termux user homedir to the new debian guest system
+#
+mkdir -p $HOME/$ROOTFS_TOP/home/$USER_NAME
+chmod 755 $HOME/$ROOTFS_TOP/home/$USER_NAME
 
 # since there are issues with proot and /proc mounts (https://github.com/termux/termux-packages/issues/1679)
 # we currently cease from mounting /proc.
@@ -245,13 +256,53 @@ chmod 644 $HOME/$ROOTFS_TOP/etc/resolv.conf
 #
 mkdir -p $HOME/bin
 cat << EOF > $HOME/bin/enter_deb
+#!/data/data/com.termux/files/usr/bin/bash
+
+unset LD_PRELOAD
+SHELL_=/bin/bash
+ROOTFS_TOP_=$ROOTFS_TOP
+ROOT_=1
+USER_=$USER_NAME
+EOF
+cat << 'EOF' >> $HOME/bin/enter_deb
+
+SCRIPTNAME=enter_deb
+show_usage () {
+        echo "Usage: $SCRIPTNAME [options]"
+        echo "$SCRIPTNAME: enter the installed debian guest system"
+        echo ""
+        echo "  -0 - mimic root (default)"
+        echo "  -n - prefer regular termux uid ($USER_)"
+        echo "  -p - mount proc (requires a patched proot package)"
+        exit 0
+}
+
+while getopts :h0np option
+do
+        case "$option" in
+                h) show_usage;;
+                0) ;;
+                n) ROOT_=0;;
+                p) CAPS_="-b /proc ";;
+                ?) echo "$SCRIPTNAME: illegal option -$OPTARG"; exit 1;
+        esac
+done
+
+[ $ROOT_ = 1 ] && {
+    CAPS_=$CAPS_"-0 "
+    HOMEDIR_=/root
+}
+[ $ROOT_ = 1 ] || {
+    HOMEDIR_=/home/$USER_
+}
+
 LD_PRELOAD= $PREFIX/bin/proot \
     -b /dev \
-    -r $HOME/$ROOTFS_TOP \
-    -w /root \
-    -0 \
+    -r $HOME/$ROOTFS_TOP_ \
+    -w $HOMEDIR_ \
+    $CAPS_ \
     --link2symlink \
-    /usr/bin/env -i HOME=/root TERM=xterm /bin/bash --login
+    /usr/bin/env -i HOME=$HOMEDIR_ TERM=xterm $SHELL_ -l
 EOF
 chmod 755 $HOME/bin/enter_deb
 
