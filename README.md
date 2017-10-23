@@ -36,7 +36,7 @@ how to use it
 
           -0 - mimic root (default)
           -n - prefer regular termux uid (termux-uid)
-          -p - mount proc (requires a patched proot package)
+          -p - mount proc (requires a [patched](https://github.com/termux/termux-packages/issues/1679#issuecomment-338595627) proot package)
 
 - for suggestions or in the unlikely event of a problem just raise an issue [here](https://github.com/sp4rkie/debian-on-termux/issues/new):-)
 
