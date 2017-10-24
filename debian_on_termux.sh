@@ -1,4 +1,4 @@
-#!/data/data/com.termux/files/usr/bin/bash
+#!/data/data/com.termux/files/usr/bin/sh
 
 #
 # some configuration. adapt this to your needs
@@ -20,6 +20,12 @@ filter() {
 
 USER_ID=`id -u`
 USER_NAME=`id -un`
+#
+# workaround https://github.com/termux/termux-app/issues/306
+# workaround https://github.com/termux/termux-packages/issues/1644
+# or expect 'patch' to fail when doin the install via ssh and sh (not bash) is used
+#
+export TMPDIR=$PREFIX/tmp
 cd
 #
 # ===============================================================
@@ -256,7 +262,7 @@ chmod 644 $HOME/$ROOTFS_TOP/etc/resolv.conf
 #
 mkdir -p $HOME/bin
 cat << EOF > $HOME/bin/enter_deb
-#!/data/data/com.termux/files/usr/bin/bash
+#!/data/data/com.termux/files/usr/bin/sh
 
 unset LD_PRELOAD
 SHELL_=/bin/bash
