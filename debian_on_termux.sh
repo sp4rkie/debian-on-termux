@@ -268,7 +268,7 @@ cat << 'EOF' >> $HOME/bin/enter_deb
 
 SCRIPTNAME=enter_deb
 show_usage () {
-        echo "Usage: $SCRIPTNAME [options]"
+        echo "Usage: $SCRIPTNAME [options] [command]"
         echo "$SCRIPTNAME: enter the installed debian guest system"
         echo ""
         echo "  -0 - mimic root (default)"
@@ -287,22 +287,24 @@ do
                 ?) echo "$SCRIPTNAME: illegal option -$OPTARG"; exit 1;
         esac
 done
+shift $(($OPTIND-1))
 
+HOMEDIR_=/home/$USER_
 [ $ROOT_ = 1 ] && {
     CAPS_=$CAPS_"-0 "
     HOMEDIR_=/root
 }
-[ $ROOT_ = 1 ] || {
-    HOMEDIR_=/home/$USER_
+CMD_="$SHELL_ -l"
+[ -z "$*" ] || {
+    CMD_='sh -c "$*"'
 }
-
-LD_PRELOAD= $PREFIX/bin/proot \
+eval $PREFIX/bin/proot \
     -b /dev \
     -r $HOME/$ROOTFS_TOP_ \
     -w $HOMEDIR_ \
     $CAPS_ \
     --link2symlink \
-    /usr/bin/env -i HOME=$HOMEDIR_ TERM=xterm $SHELL_ -l
+    /usr/bin/env -i HOME=$HOMEDIR_ TERM=$TERM LANG=$LANG $CMD_
 EOF
 chmod 755 $HOME/bin/enter_deb
 

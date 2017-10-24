@@ -12,7 +12,7 @@ how to use it
 -------------
 
 - install [Termux](https://termux.com/)
-- download `debian_on_termux.sh` from [debian-on-termux](https://github.com/sp4rkie/debian-on-termux) in your termux home directory `$HOME`
+- download `debian_on_termux.sh` from [debian-on-termux](https://github.com/sp4rkie/debian-on-termux) in your termux home directory
 
         cd /data/data/com.termux/files/home
         wget https://raw.githubusercontent.com/sp4rkie/debian-on-termux/master/debian_on_termux.sh
@@ -23,15 +23,15 @@ how to use it
         chmod 755 debian_on_termux.sh
         ./debian_on_termux.sh
 
-- watch the installation process by
+- to watch the installation process type
 
         tail -F $HOME/deboot_debian/debootstrap/debootstrap.log
 
-- if all went well (takes about 30min on my hardware, see below) a script is created. To enter the debian guest system just type
+- if all went well (takes about 30min on the hardware below) a script is created to enter the debian guest system
 
         $HOME/bin/enter_deb
 
-        Usage: enter_deb [option]
+        Usage: enter_deb [options] [command]
         enter_deb: enter the installed debian guest system
 
           -0 - mimic root (default)
