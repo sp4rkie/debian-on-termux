@@ -5,8 +5,8 @@ what is it
 ----------
 
 - a shell script to install [Debian 9 (stretch)](https://www.debian.org/releases/stretch/) via [debootstrap](https://wiki.debian.org/Debootstrap) in a [Termux](https://wiki.termux.com/wiki/Main_Page) environment
-- supported Debian versions: stretch, stable, testing, unstable
-- supported architectures: armel, armhf, arm64
+- supported Debian versions include: stable (stretch), testing (buster), unstable
+- supported architectures include: armel, armhf, arm64, i386, amd64
 
 how to use it
 -------------
