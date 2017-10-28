@@ -20,6 +20,7 @@ filter() {
 
 USER_ID=`id -u`
 USER_NAME=`id -un`
+unset LD_PRELOAD # just in case termux-exec is installed
 #
 # workaround https://github.com/termux/termux-app/issues/306
 # workaround https://github.com/termux/termux-packages/issues/1644
@@ -75,7 +76,7 @@ EOF
 # tail -F $HOME/$ROOTFS_TOP/debootstrap/debootstrap.log
 #
 export DEBOOTSTRAP_DIR=`pwd`
-LD_PRELOAD= $PREFIX/bin/proot \
+$PREFIX/bin/proot \
     -b /system \
     -b /vendor \
     -b /data \
@@ -230,7 +231,7 @@ chmod 755 $HOME/$ROOTFS_TOP/home/$USER_NAME
 # since there are issues with proot and /proc mounts (https://github.com/termux/termux-packages/issues/1679)
 # we currently cease from mounting /proc.
 # the guest system now is setup to complete the installation - just dive in
-LD_PRELOAD= $PREFIX/bin/proot \
+$PREFIX/bin/proot \
     -b /dev \
     -r $HOME/$ROOTFS_TOP \
     -w /root \
@@ -362,7 +363,7 @@ apt clean 2>&1 | filter
 EOF
 chmod 755 $HOME/$ROOTFS_TOP/tmp/dot_tmp.sh
 
-LD_PRELOAD= $PREFIX/bin/proot \
+$PREFIX/bin/proot \
     -b /dev \
     -r $HOME/$ROOTFS_TOP \
     -w /root \
