@@ -45,10 +45,11 @@ how to use it
 
 - sample usage: debian one-shot command
 
-        bash-4.4$ enter_deb -n id\; hostname\; pwd
+        bash-4.4$ enter_deb -n id\; hostname\; pwd\; cat /etc/debian_\*
         uid=10228(u0_a228) gid=10228(u0_a228) groups=10228(u0_a228),3003,9997,50228
         localhost
         /home/u0_a228
+        9.1
         bash-4.4$
 
 - a patched `proot` package for `arm` is located [here](https://github.com/termux/termux-packages/issues/1679#issuecomment-338595627)
