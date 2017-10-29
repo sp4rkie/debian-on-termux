@@ -38,12 +38,12 @@ how to use it
           -n - prefer regular termux uid (termux-uid)
           -p - mount proc (requires a patched proot package)
 
- - sample usage: debian shell
+- sample usage: debian shell
         
         bash-4.4$ enter_deb
         root@localhost:~#
 
- - sample usage: debian one-shot command
+- sample usage: debian one-shot command
 
         bash-4.4$ enter_deb -n id\; hostname\; pwd
         uid=10228(u0_a228) gid=10228(u0_a228) groups=10228(u0_a228),3003,9997,50228
@@ -51,7 +51,7 @@ how to use it
         /home/u0_a228
         bash-4.4$
 
-- a patched proot package for `arm` is located [here](https://github.com/termux/termux-packages/issues/1679#issuecomment-338595627)
+- a patched `proot` package for `arm` is located [here](https://github.com/termux/termux-packages/issues/1679#issuecomment-338595627)
 
 - for suggestions or in the unlikely event of a problem just raise an issue [here](https://github.com/sp4rkie/debian-on-termux/issues/new):-)
 
