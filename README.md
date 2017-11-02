@@ -12,9 +12,12 @@ how to use it
 -------------
 
 - install [Termux](https://termux.com/)
-- download `debian_on_termux.sh` from [debian-on-termux](https://github.com/sp4rkie/debian-on-termux) in your termux home directory
+- download `debian_on_termux.sh` from [debian-on-termux](https://github.com/sp4rkie/debian-on-termux) into your termux home directory
 
         cd /data/data/com.termux/files/home
+        apt update
+        apt install wget
+        hash -r
         wget https://raw.githubusercontent.com/sp4rkie/debian-on-termux/master/debian_on_termux.sh
 
 - check the configuration lines near the top of the script for your target architecture, debian version and other preferences
