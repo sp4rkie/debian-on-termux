@@ -39,7 +39,6 @@ how to use it
 
           -0 - mimic root (default)
           -n - prefer regular termux uid (termux-uid)
-          -p - mount proc (requires a patched proot package)
 
 - sample usage: debian shell
         
@@ -54,8 +53,6 @@ how to use it
         /home/u0_a228
         9.1
         bash-4.4$
-
-- a patched `proot` package for `arm` is located [here](https://github.com/termux/termux-packages/issues/1679#issuecomment-338595627)
 
 - for suggestions or in the unlikely event of a problem just raise an issue [here](https://github.com/sp4rkie/debian-on-termux/issues/new):-)
 

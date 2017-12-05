@@ -80,9 +80,6 @@ $PREFIX/bin/proot \
     -b /system \
     -b /vendor \
     -b /data \
-    -b /property_contexts \
-    -b /storage \
-    -b $PREFIX:/usr \
     -b $PREFIX/bin:/bin \
     -b $PREFIX/etc:/etc \
     -b $PREFIX/lib:/lib \
@@ -231,8 +228,12 @@ chmod 755 $HOME/$ROOTFS_TOP/home/$USER_NAME
 # since there are issues with proot and /proc mounts (https://github.com/termux/termux-packages/issues/1679)
 # we currently cease from mounting /proc.
 # the guest system now is setup to complete the installation - just dive in
+# UPDATE as of 2017_11_27:
+# issue https://github.com/termux/termux-packages/issues/1679#ref-commit-bcc972c now got fixed.
+# /proc now included in mount list
 $PREFIX/bin/proot \
     -b /dev \
+    -b /proc \
     -r $HOME/$ROOTFS_TOP \
     -w /root \
     -0 \
@@ -280,17 +281,15 @@ show_usage () {
         echo ""
         echo "  -0 - mimic root (default)"
         echo "  -n - prefer regular termux uid ($USER_)"
-        echo "  -p - mount proc (requires a patched proot package)"
         exit 0
 }
 
-while getopts :h0np option
+while getopts :h0n option
 do
         case "$option" in
                 h) show_usage;;
                 0) ;;
                 n) ROOT_=0;;
-                p) CAPS_="-b /proc ";;
                 ?) echo "$SCRIPTNAME: illegal option -$OPTARG"; exit 1;
         esac
 done
@@ -307,6 +306,7 @@ CMD_="$SHELL_ -l"
 }
 eval $PREFIX/bin/proot \
     -b /dev \
+    -b /proc \
     -r $HOME/$ROOTFS_TOP_ \
     -w $HOMEDIR_ \
     $CAPS_ \
@@ -365,6 +365,7 @@ chmod 755 $HOME/$ROOTFS_TOP/tmp/dot_tmp.sh
 
 $PREFIX/bin/proot \
     -b /dev \
+    -b /proc \
     -r $HOME/$ROOTFS_TOP \
     -w /root \
     -0 \
