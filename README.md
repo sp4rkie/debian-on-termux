@@ -23,8 +23,7 @@ how to use it
 - check the configuration lines near the top of the script for your target architecture, debian version and other preferences
 - set file permissions and execute the script
 
-        chmod 755 debian_on_termux.sh
-        ./debian_on_termux.sh
+        sh debian_on_termux.sh
 
 - to watch the installation process type
 
