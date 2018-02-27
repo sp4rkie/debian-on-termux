@@ -91,7 +91,7 @@ $PREFIX/bin/proot \
     -r $PREFIX/.. \
     -0 \
     --link2symlink \
-    ./debootstrap --foreign --arch=$ARCHITECTURE $VERSION $HOME/$ROOTFS_TOP http://deb.debian.org/debian \
+    ./debootstrap --foreign --include=apt --arch=$ARCHITECTURE $VERSION $HOME/$ROOTFS_TOP http://deb.debian.org/debian \
                                                                 || : # proot returns invalid exit status
 } # end DO_FIRST_STAGE
 
