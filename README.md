@@ -39,12 +39,12 @@ how to use it
           -0 - mimic root (default)
           -n - prefer regular termux uid (termux-uid)
 
-- sample usage: debian shell
+- sample usage: debian shell (stay in chrooted debian)
         
         bash-4.4$ enter_deb
         root@localhost:~#
 
-- sample usage: debian one-shot command
+- sample usage: debian one-shot command (execute in chrooted debian and return to the host environment)
 
         bash-4.4$ enter_deb -n id\; hostname\; pwd\; cat /etc/debian_\*
         uid=10228(u0_a228) gid=10228(u0_a228) groups=10228(u0_a228),3003,9997,50228
