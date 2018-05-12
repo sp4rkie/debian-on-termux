@@ -41,13 +41,14 @@ $DO_FIRST_STAGE && {
 apt update 2>&1 | filter
 DEBIAN_FRONTEND=noninteractive apt -y install perl proot 2>&1 | filter                              
 rm -rf debootstrap
-wget http://http.debian.net/debian/pool/main/d/debootstrap/debootstrap_1.0.97.tar.gz -O - | tar xfz -
-ln -nfs debootstrap-1.0.97 debootstrap
+V=debootstrap-1.0.95
+wget https://github.com/sp4rkie/debian-on-termux/files/1991333/$V.tgz.zip -O - | tar xfz -
+ln -nfs $V debootstrap
 cd debootstrap
 #
 # minimum patch needed for debootstrap to work in this environment
 #
-patch << 'EOF'
+echo << 'EOF'
 --- debootstrap-1.0.91.1/functions	2017-07-25 05:02:27.000000000 +0200
 +++ debootstrap-1.0.91/functions	2017-10-16 18:23:46.707005005 +0200
 @@ -1083,6 +1083,10 @@
