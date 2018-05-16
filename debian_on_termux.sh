@@ -25,6 +25,7 @@ fallback() {
 	rm -rf debootstrap
 	V=debootstrap-1.0.95
 	wget https://github.com/sp4rkie/debian-on-termux/files/1991333/$V.tgz.zip -O - | tar xfz -
+	V=$(echo "$V" | perl -pe 's/_/-/g')
 	ln -nfs $V debootstrap
 	cd debootstrap
 }
@@ -54,6 +55,7 @@ DEBIAN_FRONTEND=noninteractive apt -y install perl proot 2>&1 | filter
 rm -rf debootstrap
 V=$(wget http://http.debian.net/debian/pool/main/d/debootstrap/ -qO - | perl -pe 's/<.*?>/ /g' | grep -E '\.[0-9]+\.tar\.gz' | tail -n 1 | perl -pe 's/^ +//g;s/.tar.gz .*//g')
 wget "http://http.debian.net/debian/pool/main/d/debootstrap/$V.tar.gz" -O - | tar xfz -
+V=$(echo "$V" | perl -pe 's/_/-/g')
 ln -nfs "$V" debootstrap
 cd debootstrap
 #
