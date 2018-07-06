@@ -55,10 +55,12 @@ how to use it
 
 - for suggestions or in the unlikely event of a problem just raise an issue [here](https://github.com/sp4rkie/debian-on-termux/issues/new):-)
 
-hardware
+alternatives
 --------
 
-- developed and tested on Android version: 6.0.1/ Device manufacturer: LGE/ Device model: LG-K100
+- [Fedora](https://github.com/nmilosev/termux-fedora)
+- [Arch](https://github.com/sdrausty/termux-archlinux)
+- [Ubuntu](https://github.com/Neo-Oli/termux-ubuntu)
 
 reference
 ---------
