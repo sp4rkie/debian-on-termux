@@ -9,7 +9,7 @@ DO_FIRST_STAGE=: # false   # required (unpack phase/ executes outside guest invi
 DO_SECOND_STAGE=: # false  # required (complete the install/ executes inside guest invironment)
 DO_THIRD_STAGE=: # false   # optional (enable local policies/ executes inside guest invironment)
 
-ARCHITECTURE=$(uname -m | perl -pe 's/aarch64/arm64/g')
+ARCHITECTURE=$(uname -m | sed 's/aarch64/arm64/g')
                            # supported architectures include: armel, armhf, arm64, i386, amd64
 VERSION=stable             # supported debian versions include: stretch, stable, testing, unstable
 ROOTFS_TOP=deboot_debian   # name of the top install directory
@@ -25,7 +25,7 @@ fallback() {
 	rm -rf debootstrap
 	V=debootstrap-1.0.95
 	wget https://github.com/sp4rkie/debian-on-termux/files/1991333/$V.tgz.zip -O - | tar xfz -
-	V=$(echo "$V" | perl -pe 's/_/-/g')
+	V=$(echo "$V" | sed 's/_/-/g')
 	ln -nfs $V debootstrap
 	cd debootstrap
 }
@@ -53,9 +53,9 @@ $DO_FIRST_STAGE && {
 apt update 2>&1 | filter
 DEBIAN_FRONTEND=noninteractive apt -y install perl proot 2>&1 | filter                              
 rm -rf debootstrap
-V=$(wget http://http.debian.net/debian/pool/main/d/debootstrap/ -qO - | perl -pe 's/<.*?>/ /g' | grep -E '\.[0-9]+\.tar\.gz' | tail -n 1 | perl -pe 's/^ +//g;s/.tar.gz .*//g')
+V=$(wget http://http.debian.net/debian/pool/main/d/debootstrap/ -qO - | sed 's/<[^>]*>//g' | grep -E '\.[0-9]+\.tar\.gz' | tail -n 1 | sed 's/^ +//g;s/.tar.gz.*//g')
 wget "http://http.debian.net/debian/pool/main/d/debootstrap/$V.tar.gz" -O - | tar xfz -
-V=$(echo "$V" | perl -pe 's/_/-/g')
+V=$(echo "$V" | sed 's/_/-/g')
 ln -nfs "$V" debootstrap
 cd debootstrap
 #
