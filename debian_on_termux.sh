@@ -62,11 +62,11 @@ cd debootstrap
 # minimum patch needed for debootstrap to work in this environment
 #
 patch << 'EOF' || fallback
---- debootstrap-1.0.91.1/functions	2017-07-25 05:02:27.000000000 +0200
-+++ debootstrap-1.0.91/functions	2017-10-16 18:23:46.707005005 +0200
-@@ -1083,6 +1083,10 @@
+--- debootstrap-1.0.108.orig/functions
++++ debootstrap-1.0.108/functions
+@@ -1136,6 +1136,10 @@
  }
-
+ 
  setup_proc () {
 +
 +echo setup_proc
@@ -75,8 +75,8 @@ patch << 'EOF' || fallback
  	case "$HOST_OS" in
  	    *freebsd*)
  		umount_on_exit /dev
-@@ -1162,6 +1166,10 @@
- }
+@@ -1247,6 +1251,10 @@
+ 
  
  setup_devices_simple () {
 +
@@ -85,7 +85,7 @@ patch << 'EOF' || fallback
 +
  	# The list of devices that can be created in a container comes from
  	# src/core/cgroup.c in the systemd source tree.
-	mknod -m 666 $TARGET/dev/null	c 1 3
+ 	mknod_if_needed "$TARGET/dev/null"        c 1 3
 EOF
 #
 # you can watch the debootstrap progress via
