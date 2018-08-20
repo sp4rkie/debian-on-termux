@@ -9,7 +9,7 @@ DO_FIRST_STAGE=: # false   # required (unpack phase/ executes outside guest invi
 DO_SECOND_STAGE=: # false  # required (complete the install/ executes inside guest invironment)
 DO_THIRD_STAGE=: # false   # optional (enable local policies/ executes inside guest invironment)
 
-ARCHITECTURE=$(uname -m | sed 's/aarch64/arm64/g' | sed 's/x86_64/amd64/g')
+ARCHITECTURE=`uname -m | sed 's/aarch64/arm64/g' | sed 's/x86_64/amd64/g'`
                            # supported architectures include: armel, armhf, arm64, i386, amd64
 VERSION=stable             # supported debian versions include: stretch, stable, testing, unstable
 ROOTFS_TOP=deboot_debian   # name of the top install directory
@@ -25,7 +25,7 @@ fallback() {
 	rm -rf debootstrap
 	V=debootstrap-1.0.95
 	wget https://github.com/sp4rkie/debian-on-termux/files/1991333/$V.tgz.zip -O - | tar xfz -
-	V=$(echo "$V" | sed 's/_/-/g')
+	V=`echo "$V" | sed 's/_/-/g'`
 	ln -nfs $V debootstrap
 	cd debootstrap
 }
