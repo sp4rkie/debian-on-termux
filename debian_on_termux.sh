@@ -51,7 +51,13 @@ $DO_FIRST_STAGE && {
     exit
 }
 apt update 2>&1 | filter
-DEBIAN_FRONTEND=noninteractive apt -y install perl proot 2>&1 | filter
+
+unset RESOLV
+[ -e $PREFIX/etc/resolv.conf ] || {
+    RESOLV=resolv-conf
+}
+
+DEBIAN_FRONTEND=noninteractive apt -y install perl proot $RESOLV 2>&1 | filter
 rm -rf debootstrap
 V=`wget http://http.debian.net/debian/pool/main/d/debootstrap/ -qO - | sed 's/<[^>]*>//g' | grep -E '\.[0-9]+\.tar\.gz' | tail -n 1 | sed 's/^ +//g;s/.tar.gz.*//g'`
 wget http://http.debian.net/debian/pool/main/d/debootstrap/$V.tar.gz -O - | tar xfz -
@@ -268,11 +274,8 @@ $DO_THIRD_STAGE && {
 # take over an existing 'resolv.conf' from the host system (if there is one)
 #
 [ -e $HOME/$ROOTFS_TOP/etc/resolv.conf ] || {
-cat << 'EOF' > $HOME/$ROOTFS_TOP/etc/resolv.conf
-nameserver 208.67.222.222
-nameserver 208.67.220.220
-EOF
-chmod 644 $HOME/$ROOTFS_TOP/etc/resolv.conf
+    cp $PREFIX/etc/resolv.conf $HOME/$ROOTFS_TOP/etc/resolv.conf
+    chmod 644 $HOME/$ROOTFS_TOP/etc/resolv.conf
 }
 
 #
