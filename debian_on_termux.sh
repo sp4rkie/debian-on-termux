@@ -58,6 +58,7 @@ unset RESOLV
 }
 
 DEBIAN_FRONTEND=noninteractive apt -y install coreutils perl proot sed wget $RESOLV 2>&1 | filter
+hash -r
 rm -rf debootstrap
 V=`wget http://http.debian.net/debian/pool/main/d/debootstrap/ -qO - | sed 's/<[^>]*>//g' | grep -E '\.[0-9]+\.tar\.gz' | tail -n 1 | sed 's/^ +//g;s/.tar.gz.*//g'`
 wget http://http.debian.net/debian/pool/main/d/debootstrap/$V.tar.gz -O - | tar xfz -
