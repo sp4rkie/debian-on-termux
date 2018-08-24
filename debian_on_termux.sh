@@ -123,131 +123,6 @@ $PREFIX/bin/proot \
 # second stage - complete the bootstrapping process
 #
 $DO_SECOND_STAGE && {
-#
-# place some precrafted templates to avoid execution of adduser, addgroup
-# and the like. Since these do not work well in this 
-# environment (at least at the time of writing)
-#
-cat << EOF > $HOME/$ROOTFS_TOP/etc/passwd
-root:x:0:0:root:/root:/bin/bash
-daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
-bin:x:2:2:bin:/bin:/usr/sbin/nologin
-sys:x:3:3:sys:/dev:/usr/sbin/nologin
-sync:x:4:65534:sync:/bin:/bin/sync
-games:x:5:60:games:/usr/games:/usr/sbin/nologin
-man:x:6:12:man:/var/cache/man:/usr/sbin/nologin
-lp:x:7:7:lp:/var/spool/lpd:/usr/sbin/nologin
-mail:x:8:8:mail:/var/mail:/usr/sbin/nologin
-news:x:9:9:news:/var/spool/news:/usr/sbin/nologin
-uucp:x:10:10:uucp:/var/spool/uucp:/usr/sbin/nologin
-proxy:x:13:13:proxy:/bin:/usr/sbin/nologin
-www-data:x:33:33:www-data:/var/www:/usr/sbin/nologin
-backup:x:34:34:backup:/var/backups:/usr/sbin/nologin
-list:x:38:38:Mailing List Manager:/var/list:/usr/sbin/nologin
-irc:x:39:39:ircd:/var/run/ircd:/usr/sbin/nologin
-gnats:x:41:41:Gnats Bug-Reporting System (admin):/var/lib/gnats:/usr/sbin/nologin
-nobody:x:65534:65534:nobody:/nonexistent:/usr/sbin/nologin
-systemd-timesync:x:100:102:systemd Time Synchronization,,,:/run/systemd:/bin/false
-systemd-network:x:101:103:systemd Network Management,,,:/run/systemd/netif:/bin/false
-systemd-resolve:x:102:104:systemd Resolver,,,:/run/systemd/resolve:/bin/false
-systemd-bus-proxy:x:103:105:systemd Bus Proxy,,,:/run/systemd:/bin/false
-_apt:x:104:65534::/nonexistent:/bin/false
-messagebus:x:105:110::/var/run/dbus:/bin/false
-sshd:x:106:65534::/run/sshd:/usr/sbin/nologin
-$USER_NAME:x:$USER_ID:$USER_ID::/home/$USER_NAME:/bin/bash
-EOF
-chmod 644 $HOME/$ROOTFS_TOP/etc/passwd
-
-cat << EOF > $HOME/$ROOTFS_TOP/etc/group
-root:x:0:
-daemon:x:1:
-bin:x:2:
-sys:x:3:
-adm:x:4:
-tty:x:5:
-disk:x:6:
-lp:x:7:
-mail:x:8:
-news:x:9:
-uucp:x:10:
-man:x:12:
-proxy:x:13:
-kmem:x:15:
-dialout:x:20:
-fax:x:21:
-voice:x:22:
-cdrom:x:24:
-floppy:x:25:
-tape:x:26:
-sudo:x:27:
-audio:x:29:
-dip:x:30:
-www-data:x:33:
-backup:x:34:
-operator:x:37:
-list:x:38:
-irc:x:39:
-src:x:40:
-gnats:x:41:
-shadow:x:42:
-utmp:x:43:
-video:x:44:
-sasl:x:45:
-plugdev:x:46:
-staff:x:50:
-games:x:60:
-users:x:100:
-nogroup:x:65534:
-systemd-journal:x:101:
-systemd-timesync:x:102:
-systemd-network:x:103:
-systemd-resolve:x:104:
-systemd-bus-proxy:x:105:
-input:x:106:
-crontab:x:107:
-netdev:x:108:
-ssh:x:109:
-messagebus:x:110:
-$USER_NAME:x:$USER_ID:
-EOF
-chmod 644 $HOME/$ROOTFS_TOP/etc/group
-
-cat << EOF > $HOME/$ROOTFS_TOP/etc/shadow
-root:*:17448:0:99999:7:::
-daemon:*:17448:0:99999:7:::
-bin:*:17448:0:99999:7:::
-sys:*:17448:0:99999:7:::
-sync:*:17448:0:99999:7:::
-games:*:17448:0:99999:7:::
-man:*:17448:0:99999:7:::
-lp:*:17448:0:99999:7:::
-mail:*:17448:0:99999:7:::
-news:*:17448:0:99999:7:::
-uucp:*:17448:0:99999:7:::
-proxy:*:17448:0:99999:7:::
-www-data:*:17448:0:99999:7:::
-backup:*:17448:0:99999:7:::
-list:*:17448:0:99999:7:::
-irc:*:17448:0:99999:7:::
-gnats:*:17448:0:99999:7:::
-nobody:*:17448:0:99999:7:::
-systemd-timesync:*:17448:0:99999:7:::
-systemd-network:*:17448:0:99999:7:::
-systemd-resolve:*:17448:0:99999:7:::
-systemd-bus-proxy:*:17448:0:99999:7:::
-_apt:*:17448:0:99999:7:::
-messagebus:*:17448:0:99999:7:::
-sshd:*:17448:0:99999:7:::
-$USER_NAME:*:15277:0:99999:7:::
-EOF
-chmod 640 $HOME/$ROOTFS_TOP/etc/shadow
-
-#
-# add the termux user homedir to the new debian guest system
-#
-mkdir -p $HOME/$ROOTFS_TOP/home/$USER_NAME
-chmod 755 $HOME/$ROOTFS_TOP/home/$USER_NAME
-
 # since there are issues with proot and /proc mounts (https://github.com/termux/termux-packages/issues/1679)
 # we currently cease from mounting /proc.
 # the guest system now is setup to complete the installation - just dive in
@@ -263,6 +138,22 @@ $PREFIX/bin/proot \
     --link2symlink \
     /usr/bin/env -i HOME=/root TERM=xterm PATH=/usr/sbin:/usr/bin:/sbin:/bin /debootstrap/debootstrap --second-stage \
                                                                                 || : # proot returns invalid exit status
+
+#
+# Add termux user in the passwd, group and shadow.
+#
+echo "$USER_NAME:x:$USER_ID:$USER_ID::/home/$USER_NAME:/bin/bash" >> \
+    $HOME/$ROOTFS_TOP/etc/passwd
+echo "$USER_NAME:x:$USER_ID:" >> \
+    $HOME/$ROOTFS_TOP/etc/group
+echo "$USER_NAME:*:15277:0:99999:7::: >> \
+    $HOME/$ROOTFS_TOP/etc/shadow
+
+#
+# add the termux user homedir to the new debian guest system
+#
+mkdir -p $HOME/$ROOTFS_TOP/home/$USER_NAME
+chmod 755 $HOME/$ROOTFS_TOP/home/$USER_NAME
 } # end DO_SECOND_STAGE
 
 #
