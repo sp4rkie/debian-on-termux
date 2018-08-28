@@ -146,7 +146,7 @@ echo "$USER_NAME:x:$USER_ID:$USER_ID::/home/$USER_NAME:/bin/bash" >> \
     $HOME/$ROOTFS_TOP/etc/passwd
 echo "$USER_NAME:x:$USER_ID:" >> \
     $HOME/$ROOTFS_TOP/etc/group
-echo "$USER_NAME:*:15277:0:99999:7::: >> \
+echo "$USER_NAME:*:15277:0:99999:7:::" >> \
     $HOME/$ROOTFS_TOP/etc/shadow
 
 #
