@@ -13,6 +13,7 @@ ARCHITECTURE=$(uname -m)
 case $ARCHITECTURE in    # supported architectures include: armel, armhf, arm64, i386, amd64
 	aarch64) ARCHITECTURE=arm64 ;;
 	x86_64) ARCHITECTURE=amd64 ;;
+	armv7l) ARCHITECTURE=armhf ;;
 	armel|armhf|arm64|i386|amd64) ;;
 	*) echo "Unsupported architecture $ARCHITECTURE"; exit ;;
 esac
