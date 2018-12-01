@@ -3,12 +3,17 @@
 #
 # some configuration. adapt this to your needs
 #
-#set -x  
-set -e
 DO_FIRST_STAGE=: # false   # required (unpack phase/ executes outside guest invironment)
 DO_SECOND_STAGE=: # false  # required (complete the install/ executes inside guest invironment)
 DO_THIRD_STAGE=: # false   # optional (enable local policies/ executes inside guest invironment)
+VERSION=stable             # supported debian versions include: stretch, stable, testing, unstable
+ROOTFS_TOP=deboot_debian   # name of the top install directory
 
+#
+# some automatic configuration.
+#
+set -e
+ZONEINFO=$(getprop persist.sys.timezone)     # set your desired time zone
 ARCHITECTURE=$(uname -m)
 case $ARCHITECTURE in    # supported architectures include: armel, armhf, arm64, i386, amd64
 	aarch64) ARCHITECTURE=arm64 ;;
@@ -17,10 +22,6 @@ case $ARCHITECTURE in    # supported architectures include: armel, armhf, arm64,
 	armel|armhf|arm64|i386|amd64|mips|mips64el|mipsel|ppc64el|s390x) ;; # Officially supported Debian Stretch architectures
 	*) echo "Unsupported architecture $ARCHITECTURE"; exit ;;
 esac
-
-VERSION=stable             # supported debian versions include: stretch, stable, testing, unstable
-ROOTFS_TOP=deboot_debian   # name of the top install directory
-ZONEINFO=Europe/Berlin     # set your desired time zone
 
 filter() {
     grep -Ev '^$|^WARNING: apt does'
