@@ -20,7 +20,7 @@ how to use it
         hash -r
         wget https://raw.githubusercontent.com/sp4rkie/debian-on-termux/master/debian_on_termux.sh
 
-- check the configuration lines near the top of the script for your target architecture, debian version and other preferences
+- optionaly check the configuration lines near the top of the script.
 - execute the script
 
         sh debian_on_termux.sh
