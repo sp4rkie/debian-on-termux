@@ -19,6 +19,7 @@ case $ARCHITECTURE in    # supported architectures include: armel, armhf, arm64,
 	aarch64) ARCHITECTURE=arm64 ;;
 	x86_64) ARCHITECTURE=amd64 ;;
 	armv7l) ARCHITECTURE=armhf ;;
+	armv8l) ARCHITECTURE=armhf ;;
 	armel|armhf|arm64|i386|amd64|mips|mips64el|mipsel|ppc64el|s390x) ;; # Officially supported Debian Stretch architectures
 	*) echo "Unsupported architecture $ARCHITECTURE"; exit ;;
 esac
