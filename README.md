@@ -67,3 +67,7 @@ reference
 
 [How to install Debian 9.2 chroot termux? #1645](https://github.com/termux/termux-packages/issues/1645#issuecomment-337564650)
 
+Issues
+--------
+Without a pull request are not likely to be addressed. 
+
