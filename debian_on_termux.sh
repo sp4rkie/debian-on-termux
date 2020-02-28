@@ -103,6 +103,13 @@ patch << 'EOF' || fallback
  	# src/core/cgroup.c in the systemd source tree.
  	mknod_if_needed "$TARGET/dev/null"        c 1 3
 EOF
+
+#
+# fix https://github.com/sp4rkie/debian-on-termux/issues/21
+#
+wget https://ftp-master.debian.org/keys/release-10.asc -qO- |
+gpg --import --no-default-keyring --keyring $HOME/debian-release-10.gpg
+
 #
 # you can watch the debootstrap progress via
 # tail -F $HOME/$ROOTFS_TOP/debootstrap/debootstrap.log
@@ -123,7 +130,7 @@ export DEBOOTSTRAP_DIR=$(pwd)
     -r "$PREFIX/.." \
     -0 \
     --link2symlink \
-    ./debootstrap --foreign --arch="$ARCHITECTURE" "$VERSION" "$HOME/$ROOTFS_TOP" \
+    ./debootstrap --keyring=$HOME/debian-release-10.gpg --foreign --arch="$ARCHITECTURE" "$VERSION" "$HOME/$ROOTFS_TOP" \
                                                                 || : # proot returns invalid exit status
 } # end DO_FIRST_STAGE
 
