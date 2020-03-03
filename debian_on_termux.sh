@@ -3,10 +3,10 @@
 #
 # some configuration. adapt this to your needs
 #
-DO_FIRST_STAGE=: # false   # required (unpack phase/ executes outside guest invironment)
-DO_SECOND_STAGE=: # false  # required (complete the install/ executes inside guest invironment)
-DO_THIRD_STAGE=: # false   # optional (enable local policies/ executes inside guest invironment)
-VERSION=stable             # supported debian versions include: stretch, stable, testing, unstable
+DO_FIRST_STAGE=:  #false   # required (unpack phase/ executes outside guest invironment)
+DO_SECOND_STAGE=: #false   # required (complete the install/ executes inside guest invironment)
+DO_THIRD_STAGE=:  #false   # optional (enable local policies/ executes inside guest invironment)
+VERSION=stable             # debian versions: stable, testing, unstable
 ROOTFS_TOP=deboot_debian   # name of the top install directory
 
 #
@@ -16,12 +16,12 @@ set -e
 ZONEINFO=$(getprop persist.sys.timezone)     # set your desired time zone
 ARCHITECTURE=$(uname -m)
 case $ARCHITECTURE in    # supported architectures include: armel, armhf, arm64, i386, amd64
-	aarch64) ARCHITECTURE=arm64 ;;
-	x86_64) ARCHITECTURE=amd64 ;;
-	armv7l) ARCHITECTURE=armhf ;;
-	armv8l) ARCHITECTURE=armhf ;;
-	armel|armhf|arm64|i386|amd64|mips|mips64el|mipsel|ppc64el|s390x) ;; # Officially supported Debian Stretch architectures
-	*) echo "Unsupported architecture $ARCHITECTURE"; exit ;;
+    aarch64) ARCHITECTURE=arm64 ;;
+    x86_64) ARCHITECTURE=amd64 ;;
+    armv7l) ARCHITECTURE=armhf ;;
+    armv8l) ARCHITECTURE=armhf ;;
+    armel|armhf|arm64|i386|amd64|mips|mips64el|mipsel|ppc64el|s390x) ;; # Officially supported Debian Stretch architectures
+    *) echo "Unsupported architecture $ARCHITECTURE"; exit ;;
 esac
 
 filter() {
@@ -29,14 +29,14 @@ filter() {
 }
 
 fallback() {
-	echo "patching $V failed using fallback"
-	cd ..
-	rm -rf debootstrap
-	V=debootstrap-1.0.95
-	wget https://github.com/sp4rkie/debian-on-termux/files/1991333/$V.tgz.zip -O - | tar xfz -
-	V=$(echo "$V" | sed 's/_/-/g')
-	ln -nfs $V debootstrap
-	cd debootstrap
+    echo "patching $V failed using fallback"
+    cd ..
+    rm -rf debootstrap
+    V=debootstrap-1.0.95
+    wget https://github.com/sp4rkie/debian-on-termux/files/1991333/$V.tgz.zip -O - | tar xfz -
+    V=$(echo "$V" | sed 's/_/-/g')
+    ln -nfs $V debootstrap
+    cd debootstrap
 }
 
 USER_ID=$(id -u)
@@ -49,11 +49,14 @@ unset LD_PRELOAD # just in case termux-exec is installed
 #
 export TMPDIR=$PREFIX/tmp
 cd
+
 #
 # ===============================================================
 # first stage - do the initial unpack phase of bootstrapping only
 #
 $DO_FIRST_STAGE && {
+echo ======== DO_FIRST_STAGE ========
+
 [ -e "$HOME/$ROOTFS_TOP" ] && {
     echo the target install directory already exists, to continue please remove it by
     echo rm -rf "$HOME/$ROOTFS_TOP"
@@ -77,31 +80,43 @@ cd debootstrap
 #
 # minimum patch needed for debootstrap to work in this environment
 #
-patch << 'EOF' || fallback
---- debootstrap-1.0.108.orig/functions
-+++ debootstrap-1.0.108/functions
-@@ -1136,6 +1136,10 @@
+patch -l << 'EOF' || fallback
+--- functions.a 2020-02-27 13:16:24.000000000 +0100
++++ functions   2020-03-03 11:24:15.810995745 +0100
+@@ -1154,6 +1154,10 @@
  }
  
  setup_proc () {
 +
-+echo setup_proc
++echo skipping setup_proc
 +return 0
 +
- 	case "$HOST_OS" in
- 	    *freebsd*)
- 		umount_on_exit /dev
-@@ -1247,6 +1251,10 @@
+        case "$HOST_OS" in
+            *freebsd*)
+                umount_on_exit /dev
+@@ -1265,6 +1269,10 @@
  
  
  setup_devices_simple () {
 +
-+echo setup_devices_simple
++echo skipping setup_devices_simple
 +return 0
 +
- 	# The list of devices that can be created in a container comes from
- 	# src/core/cgroup.c in the systemd source tree.
- 	mknod_if_needed "$TARGET/dev/null"        c 1 3
+        # The list of devices that can be created in a container comes from
+        # src/core/cgroup.c in the systemd source tree.
+        mknod_if_needed "$TARGET/dev/null"        c 1 3
+@@ -1589,6 +1597,11 @@
+ # this directory. (Both may be forbidden by mount options, e.g. nodev and
+ # noexec respectively.)
+ check_sane_mount () {
++
++# these checks make no sense in our environment and fail anyway -> skip
++echo skipping check_sane_mount
++return 0
++
+        mkdir -p "$1"
+ 
+        case "$HOST_OS" in
 EOF
 
 #
@@ -139,6 +154,8 @@ export DEBOOTSTRAP_DIR=$(pwd)
 # second stage - complete the bootstrapping process
 #
 $DO_SECOND_STAGE && {
+echo ======== DO_SECOND_STAGE ========
+
 # since there are issues with proot and /proc mounts (https://github.com/termux/termux-packages/issues/1679)
 # we currently cease from mounting /proc.
 # the guest system now is setup to complete the installation - just dive in
@@ -152,7 +169,7 @@ $DO_SECOND_STAGE && {
     -w /root \
     -0 \
     --link2symlink \
-    /usr/bin/env -i HOME=/root TERM=xterm PATH=/usr/sbin:/usr/bin:/sbin:/bin /debootstrap/debootstrap --second-stage \
+    /usr/bin/env -i HOME=/root TERM=xterm /debootstrap/debootstrap --second-stage \
                                                                                 || : # proot returns invalid exit status
 
 #
@@ -177,6 +194,7 @@ chmod 755 "$HOME/$ROOTFS_TOP/home/$USER_NAME"
 # optional third stage - if enabled edit some system defaults - adapt this to your needs
 #
 $DO_THIRD_STAGE && {
+echo ======== DO_THIRD_STAGE ========
 
 #
 # take over an existing 'resolv.conf' from the host system (if there is one)
@@ -203,22 +221,22 @@ cat << 'EOF' >> "$HOME/bin/enter_deb"
 
 SCRIPTNAME=enter_deb
 show_usage () {
-        echo "Usage: $SCRIPTNAME [options] [command]"
-        echo "$SCRIPTNAME: enter the installed debian guest system"
-        echo ""
-        echo "  -0 - mimic root (default)"
-        echo "  -n - prefer regular termux uid ($USER_)"
-        exit 0
+    echo "Usage: $SCRIPTNAME [options] [command]"
+    echo "$SCRIPTNAME: enter the installed debian guest system"
+    echo ""
+    echo "  -0 - mimic root (default)"
+    echo "  -n - prefer regular termux uid ($USER_)"
+    exit 0
 }
 
 while getopts :h0n option
 do
-        case "$option" in
-                h) show_usage;;
-                0) ;;
-                n) ROOT_=0;;
-                ?) echo "$SCRIPTNAME: illegal option -$OPTARG"; exit 1;
-        esac
+    case "$option" in
+        h) show_usage;;
+        0) ;;
+        n) ROOT_=0;;
+        ?) echo "$SCRIPTNAME: illegal option -$OPTARG"; exit 1;
+    esac
 done
 shift $(($OPTIND-1))
 
