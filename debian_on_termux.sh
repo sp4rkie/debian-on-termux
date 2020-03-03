@@ -20,7 +20,8 @@ case $ARCHITECTURE in    # supported architectures include: armel, armhf, arm64,
     x86_64) ARCHITECTURE=amd64 ;;
     armv7l) ARCHITECTURE=armhf ;;
     armv8l) ARCHITECTURE=armhf ;;
-    armel|armhf|arm64|i386|amd64|mips|mips64el|mipsel|ppc64el|s390x) ;; # Officially supported Debian Stretch architectures
+    armel|armhf|arm64|i386|amd64|mips|mips64el|mipsel|ppc64el|s390x) ;;
+    # Officially supported Debian Stretch architectures
     *) echo "Unsupported architecture $ARCHITECTURE"; exit ;;
 esac
 
@@ -33,9 +34,10 @@ fallback() {
     cd ..
     rm -rf debootstrap
     V=debootstrap-1.0.95
-    wget https://github.com/sp4rkie/debian-on-termux/files/1991333/$V.tgz.zip -O - | tar xfz -
+    wget https://github.com/sp4rkie/debian-on-termux/files/1991333/$V.tgz.zip -O - \
+        | tar xfz -
     V=$(echo "$V" | sed 's/_/-/g')
-    ln -nfs $V debootstrap
+    ln -nfs "$V" debootstrap
     cd debootstrap
 }
 
@@ -65,16 +67,20 @@ echo ======== DO_FIRST_STAGE ========
 apt update 2>&1 | filter
 
 unset RESOLV
-[ -e $PREFIX/etc/resolv.conf ] || {
+[ -e "$PREFIX/etc/resolv.conf" ] || {
     RESOLV=resolv-conf
 }
 
 DEBIAN_FRONTEND=noninteractive apt -y install coreutils perl proot sed wget gnupg $RESOLV 2>&1 | filter
 hash -r
 rm -rf debootstrap
-V=$(wget http://http.debian.net/debian/pool/main/d/debootstrap/ -qO - | sed 's/<[^>]*>//g' | grep -E '\.[0-9]+\.tar\.gz' | tail -n 1 | sed 's/^ +//g;s/.tar.gz.*//g')
+V=$(wget http://http.debian.net/debian/pool/main/d/debootstrap/ -qO - \
+    | sed 's/<[^>]*>//g' \
+    | grep -E '\.[0-9]+\.tar\.gz' \
+    | tail -n 1 \
+    | sed 's/^ +//g;s/.tar.gz.*//g')
 wget "http://http.debian.net/debian/pool/main/d/debootstrap/$V.tar.gz" -O - | tar xfz -
-V=$(echo $V | sed 's/_/-/g')
+V=$(echo "$V" | sed 's/_/-/g')
 ln -nfs "$V" debootstrap
 cd debootstrap
 #
@@ -122,14 +128,15 @@ EOF
 #
 # fix https://github.com/sp4rkie/debian-on-termux/issues/21
 #
-wget https://ftp-master.debian.org/keys/release-10.asc -qO- |
-gpg --import --no-default-keyring --keyring $HOME/debian-release-10.gpg
+wget https://ftp-master.debian.org/keys/release-10.asc -qO- \
+    | gpg --import --no-default-keyring --keyring "$HOME/debian-release-10.gpg"
 
 #
 # you can watch the debootstrap progress via
 # tail -F $HOME/$ROOTFS_TOP/debootstrap/debootstrap.log
 #
-export DEBOOTSTRAP_DIR=$(pwd)
+DEBOOTSTRAP_DIR="$(pwd)"
+export DEBOOTSTRAP_DIR
 "$PREFIX/bin/proot" \
     -b /system \
     -b /vendor \
@@ -145,8 +152,9 @@ export DEBOOTSTRAP_DIR=$(pwd)
     -r "$PREFIX/.." \
     -0 \
     --link2symlink \
-    ./debootstrap --keyring=$HOME/debian-release-10.gpg --foreign --arch="$ARCHITECTURE" "$VERSION" "$HOME/$ROOTFS_TOP" \
-                                                                || : # proot returns invalid exit status
+    ./debootstrap --keyring="$HOME/debian-release-10.gpg" \
+        --foreign --arch="$ARCHITECTURE" "$VERSION" "$HOME/$ROOTFS_TOP" \
+        || : # proot returns invalid exit status
 } # end DO_FIRST_STAGE
 
 #
@@ -170,17 +178,17 @@ echo ======== DO_SECOND_STAGE ========
     -0 \
     --link2symlink \
     /usr/bin/env -i HOME=/root TERM=xterm /debootstrap/debootstrap --second-stage \
-                                                                                || : # proot returns invalid exit status
+        || : # proot returns invalid exit status
 
 #
 # Add termux user in the passwd, group and shadow.
 #
 echo "$USER_NAME:x:$USER_ID:$USER_ID::/home/$USER_NAME:/bin/bash" >> \
-    $HOME/$ROOTFS_TOP/etc/passwd
+    "$HOME/$ROOTFS_TOP/etc/passwd"
 echo "$USER_NAME:x:$USER_ID:" >> \
-    $HOME/$ROOTFS_TOP/etc/group
+    "$HOME/$ROOTFS_TOP/etc/group"
 echo "$USER_NAME:*:15277:0:99999:7:::" >> \
-    $HOME/$ROOTFS_TOP/etc/shadow
+    "$HOME/$ROOTFS_TOP/etc/shadow"
 
 #
 # add the termux user homedir to the new debian guest system
@@ -316,7 +324,7 @@ chmod 755 "$HOME/$ROOTFS_TOP/tmp/dot_tmp.sh"
     -0 \
     --link2symlink \
     /usr/bin/env -i HOME=/root TERM=xterm PATH=/usr/sbin:/usr/bin:/sbin:/bin /tmp/dot_tmp.sh \
-                                                      || : # proot returns invalid exit status
+        || : # proot returns invalid exit status
 echo 
 echo installation successfully completed
 echo to enter the guest system type:
