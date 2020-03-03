@@ -29,64 +29,11 @@ filter() {
     grep -Ev '^$|^WARNING: apt does'
 }
 
-fallback() {
-    echo "patching $V failed using fallback"
-    cd ..
-    rm -rf debootstrap
-    V=debootstrap-1.0.95
-    wget https://github.com/sp4rkie/debian-on-termux/files/1991333/$V.tgz.zip -O - \
-        | tar xfz -
-    V=$(echo "$V" | sed 's/_/-/g')
-    ln -nfs "$V" debootstrap
-    cd debootstrap
-}
-
-USER_ID=$(id -u)
-USER_NAME=$(id -un)
-unset LD_PRELOAD # just in case termux-exec is installed
-#
-# workaround https://github.com/termux/termux-app/issues/306
-# workaround https://github.com/termux/termux-packages/issues/1644
-# or expect 'patch' to fail when doin the install via ssh and sh (not bash) is used
-#
-export TMPDIR=$PREFIX/tmp
-cd
-
-#
-# ===============================================================
-# first stage - do the initial unpack phase of bootstrapping only
-#
-$DO_FIRST_STAGE && {
-echo ======== DO_FIRST_STAGE ========
-
-[ -e "$HOME/$ROOTFS_TOP" ] && {
-    echo the target install directory already exists, to continue please remove it by
-    echo rm -rf "$HOME/$ROOTFS_TOP"
-    exit
-}
-apt update 2>&1 | filter
-
-unset RESOLV
-[ -e "$PREFIX/etc/resolv.conf" ] || {
-    RESOLV=resolv-conf
-}
-
-DEBIAN_FRONTEND=noninteractive apt -y install coreutils perl proot sed wget gnupg $RESOLV 2>&1 | filter
-hash -r
-rm -rf debootstrap
-V=$(wget http://http.debian.net/debian/pool/main/d/debootstrap/ -qO - \
-    | sed 's/<[^>]*>//g' \
-    | grep -E '\.[0-9]+\.tar\.gz' \
-    | tail -n 1 \
-    | sed 's/^ +//g;s/.tar.gz.*//g')
-wget "http://http.debian.net/debian/pool/main/d/debootstrap/$V.tar.gz" -O - | tar xfz -
-V=$(echo "$V" | sed 's/_/-/g')
-ln -nfs "$V" debootstrap
-cd debootstrap
+patchme() {
 #
 # minimum patch needed for debootstrap to work in this environment
 #
-patch -l << 'EOF' || fallback
+patch -l << 'EOF' 
 --- functions.a 2020-02-27 13:16:24.000000000 +0100
 +++ functions   2020-03-03 11:24:15.810995745 +0100
 @@ -1154,6 +1154,10 @@
@@ -124,6 +71,68 @@ patch -l << 'EOF' || fallback
  
         case "$HOST_OS" in
 EOF
+    return $?
+}
+
+USER_ID=$(id -u)
+USER_NAME=$(id -un)
+unset LD_PRELOAD # just in case termux-exec is installed
+#
+# workaround https://github.com/termux/termux-app/issues/306
+# workaround https://github.com/termux/termux-packages/issues/1644
+# or expect 'patch' to fail when doin the install via ssh and sh (not bash) is used
+#
+export TMPDIR=$PREFIX/tmp
+cd
+
+#
+# ===============================================================
+# first stage - do the initial unpack phase of bootstrapping only
+#
+$DO_FIRST_STAGE && {
+echo ======== DO_FIRST_STAGE ========
+
+[ -e "$HOME/$ROOTFS_TOP" ] && {
+    echo the target install directory already exists, to continue please remove it by
+    echo rm -rf "$HOME/$ROOTFS_TOP"
+    exit
+}
+apt update 2>&1 | filter
+
+unset RESOLV
+[ -e "$PREFIX/etc/resolv.conf" ] || {
+    RESOLV=resolv-conf
+}
+
+DEBIAN_FRONTEND=noninteractive apt -y install coreutils perl proot sed wget gnupg $RESOLV 2>&1 | filter
+hash -r
+
+# first try to patch the most recent original of debian debootstrap script
+rm -rf debootstrap
+V=$(wget http://http.debian.net/debian/pool/main/d/debootstrap/ -qO - \
+    | sed 's/<[^>]*>//g' \
+    | grep -E '\.[0-9]+\.tar\.gz' \
+    | tail -n 1 \
+    | sed 's/^ +//g;s/.tar.gz.*//g')
+wget "http://http.debian.net/debian/pool/main/d/debootstrap/$V.tar.gz" -O - | tar xfz -
+V=$(echo "$V" | sed 's/_/-/g')
+ln -nfs "$V" debootstrap
+cd debootstrap
+
+patchme || {
+# if the above fails patch the last known good backup of an 
+# older version of debian debootstrap script
+cd
+echo "patching $V failed using fallback"
+rm -rf debootstrap
+V=debootstrap_1.0.119
+wget "https://github.com/sp4rkie/debian-on-termux/blob/master/$V.tgz?raw=true" -O - \
+        | tar xfz -
+V=$(echo "$V" | sed 's/_/-/g')
+ln -nfs "$V" debootstrap
+cd debootstrap
+patchme
+}
 
 #
 # fix https://github.com/sp4rkie/debian-on-termux/issues/21
