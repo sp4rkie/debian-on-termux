@@ -13,6 +13,7 @@ ROOTFS_TOP=deboot_debian   # name of the top install directory
 # some automatic configuration.
 #
 set -e
+trap '[ $? -eq 0 ] && exit 0 || termux-info' EXIT
 ZONEINFO=$(getprop persist.sys.timezone)     # set your desired time zone
 ARCHITECTURE=$(uname -m)
 case $ARCHITECTURE in    # supported architectures include: armel, armhf, arm64, i386, amd64
