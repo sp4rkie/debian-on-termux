@@ -13,7 +13,7 @@ ROOTFS_TOP=deboot_debian   # name of the top install directory
 # some automatic configuration.
 #
 set -e
-trap '[ $? -eq 0 ] && exit 0 || termux-info' EXIT
+trap '[ $? -eq 0 ] && exit 0 || (echo; echo "termux-info:"; termux-info)' EXIT
 ZONEINFO=$(getprop persist.sys.timezone)     # set your desired time zone
 ARCHITECTURE=$(uname -m)
 case $ARCHITECTURE in    # supported architectures include: armel, armhf, arm64, i386, amd64
@@ -143,7 +143,7 @@ wget https://ftp-master.debian.org/keys/release-10.asc -qO - \
 #
 DEBOOTSTRAP_DIR="$(pwd)"
 export DEBOOTSTRAP_DIR
-"$PREFIX/bin/proot" \
+O="$("$PREFIX/bin/proot" \
     -b /system \
     -b /vendor \
     -b /data \
@@ -159,8 +159,12 @@ export DEBOOTSTRAP_DIR
     -0 \
     --link2symlink \
     ./debootstrap --keyring="$HOME/debian-release-10.gpg" \
-        --foreign --arch="$ARCHITECTURE" "$VERSION" "$HOME/$ROOTFS_TOP" \
-        || : # proot returns invalid exit status
+        --foreign --arch="$ARCHITECTURE" "$VERSION" "$HOME/$ROOTFS_TOP" 2>&1 || true)"
+# proot returns invalid exit status
+if echo "$O" | grep error > /dev/null ; then
+    echo "$O"
+    exit 1
+fi
 } # end DO_FIRST_STAGE
 
 #
@@ -176,16 +180,19 @@ echo ======== DO_SECOND_STAGE ========
 # UPDATE as of 2017_11_27:
 # issue https://github.com/termux/termux-packages/issues/1679#ref-commit-bcc972c now got fixed.
 # /proc now included in mount list
-"$PREFIX/bin/proot" \
+O="$("$PREFIX/bin/proot" \
     -b /dev \
     -b /proc \
     -r "$HOME/$ROOTFS_TOP" \
     -w /root \
     -0 \
-    --link2symlink \
-    /usr/bin/env -i HOME=/root TERM=xterm /debootstrap/debootstrap --second-stage \
-        || : # proot returns invalid exit status
-
+    --link2symlink /usr/bin/env \
+    -i HOME=/root TERM=xterm /debootstrap/debootstrap --second-stage 2>&1 || true)"
+# proot returns invalid exit status
+if echo "$O" | grep error > /dev/null ; then
+    echo "$O"
+    exit 1
+fi
 #
 # Add termux user in the passwd, group and shadow.
 #
