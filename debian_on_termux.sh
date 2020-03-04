@@ -161,7 +161,7 @@ O="$("$PREFIX/bin/proot" \
     ./debootstrap --keyring="$HOME/debian-release-10.gpg" \
         --foreign --arch="$ARCHITECTURE" "$VERSION" "$HOME/$ROOTFS_TOP" 2>&1 || true)"
 # proot returns invalid exit status
-if echo "$O" | grep error > /dev/null ; then
+if echo "$O" | grep " error: " > /dev/null ; then
     echo "$O"
     exit 1
 fi
@@ -189,7 +189,7 @@ O="$("$PREFIX/bin/proot" \
     --link2symlink /usr/bin/env \
     -i HOME=/root TERM=xterm /debootstrap/debootstrap --second-stage 2>&1 || true)"
 # proot returns invalid exit status
-if echo "$O" | grep error > /dev/null ; then
+if echo "$O" | grep " error: " > /dev/null ; then
     echo "$O"
     exit 1
 fi
