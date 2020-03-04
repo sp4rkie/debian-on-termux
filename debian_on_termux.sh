@@ -25,10 +25,6 @@ case $ARCHITECTURE in    # supported architectures include: armel, armhf, arm64,
     *) echo "Unsupported architecture $ARCHITECTURE"; exit ;;
 esac
 
-filter() {
-    grep -Ev '^$|^WARNING: apt does'
-}
-
 patchme() {
 #
 # minimum patch needed for debootstrap to work in this environment
@@ -97,14 +93,14 @@ echo ======== DO_FIRST_STAGE ========
     echo rm -rf "$HOME/$ROOTFS_TOP"
     exit
 }
-apt update 2>&1 | filter
+apt-get -qq update
 
 unset RESOLV
 [ -e "$PREFIX/etc/resolv.conf" ] || {
     RESOLV=resolv-conf
 }
 
-DEBIAN_FRONTEND=noninteractive apt -y install coreutils perl proot sed wget gnupg $RESOLV 2>&1 | filter
+DEBIAN_FRONTEND=noninteractive apt-get -yqq install coreutils perl proot sed wget gnupg $RESOLV
 hash -r
 
 # first try to patch the most recent original of debian debootstrap script
@@ -114,7 +110,7 @@ V=$(wget http://http.debian.net/debian/pool/main/d/debootstrap/ -qO - \
     | grep -E '\.[0-9]+\.tar\.gz' \
     | tail -n 1 \
     | sed 's/^ +//g;s/.tar.gz.*//g')
-wget "http://http.debian.net/debian/pool/main/d/debootstrap/$V.tar.gz" -O - | tar xfz -
+wget "http://http.debian.net/debian/pool/main/d/debootstrap/$V.tar.gz" -qO - | tar xfz -
 V=$(echo "$V" | sed 's/_/-/g')
 ln -nfs "$V" debootstrap
 cd debootstrap
@@ -126,7 +122,7 @@ cd
 echo "patching $V failed using fallback"
 rm -rf debootstrap
 V=debootstrap_1.0.119
-wget "https://github.com/sp4rkie/debian-on-termux/blob/master/$V.tgz?raw=true" -O - \
+wget "https://github.com/sp4rkie/debian-on-termux/blob/master/$V.tgz?raw=true" -qO - \
         | tar xfz -
 V=$(echo "$V" | sed 's/_/-/g')
 ln -nfs "$V" debootstrap
@@ -137,7 +133,7 @@ patchme
 #
 # fix https://github.com/sp4rkie/debian-on-termux/issues/21
 #
-wget https://ftp-master.debian.org/keys/release-10.asc -qO- \
+wget https://ftp-master.debian.org/keys/release-10.asc -qO - \
     | gpg --import --no-default-keyring --keyring "$HOME/debian-release-10.gpg"
 
 #
