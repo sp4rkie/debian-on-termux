@@ -18,7 +18,7 @@ how to use it
         apt update
         apt install wget
         hash -r
-        wget https://raw.githubusercontent.com/sp4rkie/debian-on-termux/master/debian_on_termux.sh
+        wget -q https://raw.githubusercontent.com/sp4rkie/debian-on-termux/master/debian_on_termux.sh
 
 - optionaly check the configuration lines near the top of the script.
 - execute the script
