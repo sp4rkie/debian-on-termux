@@ -4,8 +4,8 @@ debian-on-termux
 what is it
 ----------
 
-- a shell script to install [Debian 9 (stretch)](https://www.debian.org/releases/stretch/) via [debootstrap](https://wiki.debian.org/Debootstrap) in a [Termux](https://wiki.termux.com/wiki/Main_Page) environment
-- supported Debian versions include: stable (stretch), testing (buster), unstable
+- a shell script to install [Debian 10 (buster)](https://www.debian.org/releases/buster/) via [debootstrap](https://wiki.debian.org/Debootstrap) in a [Termux](https://wiki.termux.com/wiki/Main_Page) environment
+- supported Debian versions include: stable (buster), testing (bullseye), unstable (sid)
 - supported architectures include: armel, armhf, arm64, i386, amd64
 
 how to use it
@@ -25,11 +25,15 @@ how to use it
 
         sh debian_on_termux.sh
 
-- to watch the installation process type
+- to watch the ongoing installation process type
 
         tail -F $HOME/deboot_debian/debootstrap/debootstrap.log
 
-- if all went well (takes about 30min on the hardware below) a script is created to enter the debian guest system
+- after the install this log is moved over to
+
+        $HOME/deboot_debian/var/log/bootstrap.log
+
+- if all went well a script is created to enter the debian guest system
 
         $HOME/bin/enter_deb
 
@@ -52,8 +56,6 @@ how to use it
         /home/u0_a228
         9.1
         bash-4.4$
-
-- for suggestions or in the unlikely event of a problem just raise an issue [here](https://github.com/sp4rkie/debian-on-termux/issues/new):-)
 
 alternatives
 ------------
