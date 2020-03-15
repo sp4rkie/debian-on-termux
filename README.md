@@ -7,6 +7,7 @@ what is it
 - a shell script to install [Debian 10 (buster)](https://www.debian.org/releases/buster/) via [debootstrap](https://wiki.debian.org/Debootstrap) in a [Termux](https://wiki.termux.com/wiki/Main_Page) environment
 - supported Debian versions include: stable (buster), testing (bullseye), unstable (sid)
 - supported architectures include: armel, armhf, arm64, i386, amd64
+- no root permissions are required
 
 how to use it
 -------------
