@@ -133,9 +133,12 @@ patchme
 
 #
 # fix https://github.com/sp4rkie/debian-on-termux/issues/21
+# fix https://github.com/sp4rkie/debian-on-termux/issues/63
 #
-wget https://ftp-master.debian.org/keys/release-10.asc -qO - \
-    | gpg --import --no-default-keyring --keyring "$HOME/debian-release-10.gpg"
+# add the key for stable (Debian Stable Release Key)
+apt-key adv --recv-keys DCC9EFBF77E11517
+# add the keys for testing, unstable (Debian Archive Automatic Signing Key)
+apt-key adv --recv-keys 648ACFD622F3D138
 
 #
 # you can watch the debootstrap progress via
@@ -158,7 +161,7 @@ O="$("$PREFIX/bin/proot" \
     -r "$PREFIX/.." \
     -0 \
     --link2symlink \
-    ./debootstrap --keyring="$HOME/debian-release-10.gpg" \
+    ./debootstrap --keyring="$PREFIX/etc/apt/trusted.gpg" \
         --foreign --arch="$ARCHITECTURE" "$VERSION" "$HOME/$ROOTFS_TOP" 2>&1 || true)"
 # proot returns invalid exit status
 if echo "$O" | grep " error: " > /dev/null ; then
