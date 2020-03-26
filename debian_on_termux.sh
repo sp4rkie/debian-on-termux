@@ -163,6 +163,7 @@ O="$("$PREFIX/bin/proot" \
     --link2symlink \
     ./debootstrap --keyring="$PREFIX/etc/apt/trusted.gpg" \
         --foreign --arch="$ARCHITECTURE" "$VERSION" "$HOME/$ROOTFS_TOP" 2>&1 || true)"
+echo "$O" > ~/debian-on-termux_debootstrap.log
 # proot returns invalid exit status
 if echo "$O" | grep " error: " > /dev/null ; then
     echo "$O"
@@ -191,6 +192,7 @@ O="$("$PREFIX/bin/proot" \
     -0 \
     --link2symlink /usr/bin/env \
     -i HOME=/root TERM=xterm /debootstrap/debootstrap --second-stage 2>&1 || true)"
+echo "$O" > ~/debian-on-termux_debootstrap_stage2.log
 # proot returns invalid exit status
 if echo "$O" | grep " error: " > /dev/null ; then
     echo "$O"
