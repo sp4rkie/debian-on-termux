@@ -21,7 +21,7 @@ how to use it
         hash -r
         wget -q https://raw.githubusercontent.com/sp4rkie/debian-on-termux/master/debian_on_termux.sh
 
-- optionaly check the configuration lines near the top of the script.
+- optionally check/modify the configuration lines near the top of the script
 - execute the script
 
         sh debian_on_termux.sh
@@ -55,7 +55,7 @@ how to use it
         uid=10228(u0_a228) gid=10228(u0_a228) groups=10228(u0_a228),3003,9997,50228
         localhost
         /home/u0_a228
-        9.1
+        10.3
         bash-4.4$
 
 alternatives
