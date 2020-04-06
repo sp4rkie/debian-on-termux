@@ -17,7 +17,7 @@ how to use it
 
         cd /data/data/com.termux/files/home
         apt update
-        apt install wget
+        apt install wget termux-tools
         hash -r
         wget -q https://raw.githubusercontent.com/sp4rkie/debian-on-termux/master/debian_on_termux.sh
 
