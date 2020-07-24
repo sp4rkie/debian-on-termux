@@ -15,7 +15,7 @@ if [ ! -d ~/debian-$BRANCH ] ; then
 	case $ARCH in
 		aarch64) ARCH=arm64 ;;
 		x86_64) ARCH=amd64 ;;
-		armv7l|arm81) ARCH=armhf ;;
+		armv7l|armv81) ARCH=armhf ;;
 		*) echo "Unsupported architecture $ARCH"; exit ;;
 	esac
 	apt-get -qq update
