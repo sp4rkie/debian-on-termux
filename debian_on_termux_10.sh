@@ -4,6 +4,8 @@
 BRANCH=testing
 # base(258M), minbase(217M), buildd, fakechroot
 VAR=minbase
+# list_close_debian_mirrors.sh
+REPO=http://ftp.debian.org/debian/
 
 set -e
 trap '[ $? -eq 0 ] && exit 0 || (echo; echo "termux-info:"; termux-info)' EXIT
@@ -25,7 +27,7 @@ if [ ! -d ~/debian-$BRANCH ] ; then
 		--arch=$ARCH \
 		$BRANCH \
 		debian-$BRANCH \
-		http://ftp.debian.org/debian/
+		$REPO
 fi
 unset LD_PRELOAD
 proot \
