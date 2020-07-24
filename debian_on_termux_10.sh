@@ -17,7 +17,8 @@ if [ ! -d ~/debian-$BRANCH ] ; then
 		*) echo "Unsupported architecture $ARCH"; exit ;;
 	esac
 	apt-get -qq update
-	apt-get install -qq debootstrap proot wget
+	apt-get -qq dist-upgrade
+	apt-get -qq install debootstrap proot wget
 	debootstrap \
 		--variant=$VAR \
 		--exclude=systemd \
