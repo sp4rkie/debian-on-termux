@@ -5,6 +5,9 @@ BRANCH=testing
 # base(258M), minbase(217M), buildd, fakechroot
 VAR=minbase
 
+set -e
+trap '[ $? -eq 0 ] && exit 0 || (echo; echo "termux-info:"; termux-info)' EXIT
+
 if [ ! -d ~/debian-$BRANCH ] ; then
 	ARCH=$(uname -m)
 	case $ARCH in
@@ -13,7 +16,8 @@ if [ ! -d ~/debian-$BRANCH ] ; then
 		armv7l|arm81) ARCH=armhf ;;
 		*) echo "Unsupported architecture $ARCH"; exit ;;
 	esac
-	pkg install -y debootstrap proot wget
+	apt-get -qq update
+	apt-get install -qq debootstrap proot wget
 	debootstrap \
 		--variant=$VAR \
 		--exclude=systemd \
