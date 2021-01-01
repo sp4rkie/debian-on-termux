@@ -26,7 +26,7 @@ if [ ! -d ~/debian-$BRANCH ] ; then
 		--exclude=systemd \
 		--arch=$ARCH \
 		$BRANCH \
-		debian-$BRANCH \
+		~/debian-$BRANCH \
 		$REPO
 fi
 unset LD_PRELOAD
