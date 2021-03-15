@@ -15,7 +15,9 @@ if [ ! -d ~/debian-$BRANCH ] ; then
 	case $ARCH in
 		aarch64) ARCH=arm64 ;;
 		x86_64) ARCH=amd64 ;;
-		armv7l|armv81) ARCH=armhf ;;
+		i686) ARCH=i386 ;;
+		armv7l) ARCH=armhf ;;
+		armv8l) apt-get -qq install getconf; if [ $(getconf LONG_BIT) -eq 64 ]; then ARCH=arm64; else ARCH=armhf; fi ;;
 		*) echo "Unsupported architecture $ARCH"; exit ;;
 	esac
 	apt-get -qq update
