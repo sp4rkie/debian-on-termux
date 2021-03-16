@@ -19,9 +19,10 @@ ARCHITECTURE=$(uname -m)
 case $ARCHITECTURE in    # supported architectures include: armel, armhf, arm64, i386, amd64
     aarch64) ARCHITECTURE=arm64 ;;
     x86_64) ARCHITECTURE=amd64 ;;
+    i686) ARCHITECTURE=i386 ;;
     armv7l) ARCHITECTURE=armhf ;;
-    armv8l) ARCHITECTURE=armhf ;;
-    armel|armhf|arm64|i386|amd64|mips|mips64el|mipsel|ppc64el|s390x) ;;
+    armv8l) apt-get -qq install getconf; if [ $(getconf LONG_BIT) -eq 64 ]; then ARCHITECTURE=arm64; else ARCHITECTURE=armhf; fi ;;
+    armel|armhf|arm64|amd64|mips|mips64el|mipsel|ppc64el|s390x) ;;
     # Officially supported Debian Stretch architectures
     *) echo "Unsupported architecture $ARCHITECTURE"; exit ;;
 esac
