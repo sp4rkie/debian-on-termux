@@ -137,9 +137,12 @@ patchme
 # fix https://github.com/sp4rkie/debian-on-termux/issues/63
 #
 # add the key for stable (Debian Stable Release Key)
-apt-key adv --recv-keys DCC9EFBF77E11517
+# Fix "gpg: keyserver receive failed: No name and apt-key(8) Deprecated"
+gpg --keyserver keyserver.ubuntu.com --recv-keys DCC9EFBF77E11517
+
 # add the keys for testing, unstable (Debian Archive Automatic Signing Key)
-apt-key adv --recv-keys 648ACFD622F3D138
+gpg --keyserver keyserver.ubuntu.com --recv-keys 648ACFD622F3D138
+
 
 #
 # you can watch the debootstrap progress via
